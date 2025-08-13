@@ -23,14 +23,12 @@ class VaultRadioPlugin extends Plugin {
         } catch (e) { console.error("Vault Radio plugin load error:", e); }
     }
 
-    // --- 核心修复：重构事件监听和播放结束逻辑 ---
     registerEventListeners() {
         this.registerDomEvent(this.playPauseButton, 'click', () => this.togglePlayPause());
         this.registerDomEvent(this.prevButton, 'click', () => this.playPrevious());
         this.registerDomEvent(this.nextButton, 'click', () => this.playNext()); // “下一首”按钮现在只调用 playNext
         this.registerDomEvent(this.playlistTrackButton, 'click', () => this.toggleHub());
         
-        // 歌曲自然播放结束时，调用专门的处理器
         this.registerDomEvent(this.audioPlayer, 'ended', () => this.handleTrackEnd());
         
         this.registerDomEvent(this.audioPlayer, 'timeupdate', () => this.updateProgress());
@@ -44,13 +42,11 @@ class VaultRadioPlugin extends Plugin {
     }
 
     handleTrackEnd() {
-        // 只有在歌曲自然播放结束时，才检查是否为单曲循环
         if (this.settings.playbackMode === 'single' && this.nowPlayingTrack) {
             this.audioPlayer.currentTime = 0;
             this.play();
             return;
         }
-        // 其他模式下，正常播放下一首
         this.playNext();
     }
     
@@ -68,7 +64,6 @@ class VaultRadioPlugin extends Plugin {
         this.loadTrack(this.viewPlaylist[prevIndex], true);
     }
 
-    // --- 以下为稳定代码 ---
     setupUI() { this.statusBarItem = this.addStatusBarItem(); this.statusBarItem.addClass('minimal-player-statusbar-new'); this.prevButton = this.statusBarItem.createEl('button', { cls: 'minimal-player-button' }); setIcon(this.prevButton, 'skip-back'); this.playPauseButton = this.statusBarItem.createEl('button', { cls: 'minimal-player-button' }); setIcon(this.playPauseButton, 'play'); this.nextButton = this.statusBarItem.createEl('button', { cls: 'minimal-player-button' }); setIcon(this.nextButton, 'skip-forward'); this.playlistTrackButton = this.statusBarItem.createEl('button', { cls: 'playlist-track-button' }); this.trackNameEl = this.playlistTrackButton.createEl('span', { text: '播放列表' }); this.statusBarProgress = this.playlistTrackButton.createEl('div', { cls: 'status-bar-progress' }); this.hubContainer = document.body.createEl('div', { cls: 'minimal-player-hub-container' }); this.hubContainer.hide(); const hubFunctionBar = this.hubContainer.createEl('div', { cls: 'hub-function-bar' }); this.favButton = hubFunctionBar.createEl('button', { cls: 'hub-function-button' }); this.categorySelect = hubFunctionBar.createEl('select', { cls: 'hub-function-select' }); this.modeButton = hubFunctionBar.createEl('button', { cls: 'hub-function-button' }); this.updateFavButton(); this.updateModeIcon(); const hubControls = this.hubContainer.createEl('div', { cls: 'hub-controls' }); this.hubProgressContainer = hubControls.createEl('div', { cls: 'hub-progress-container' }); this.hubProgressFill = this.hubProgressContainer.createEl('div', { cls: 'hub-progress-fill' }); this.hubProgressThumb = this.hubProgressContainer.createEl('div', { cls: 'hub-progress-thumb' }); this.hubTimeDisplay = hubControls.createEl('div', { cls: 'hub-time-display' }); this.hubPlaylist = this.hubContainer.createEl('ul', { cls: 'hub-playlist' }); }
     async loadFullPlaylist() { this.fullPlaylist = []; const validFolders = this.settings.musicFolderPaths.filter(p => p && p.trim() !== ''); if (validFolders.length > 0) { const allFiles = this.app.vault.getFiles(); let collectedFiles = new Map(); validFolders.forEach(folderPath => { const normalizedPath = folderPath.replace(/\\/g, '/'); allFiles.forEach(file => { if (file.path.startsWith(normalizedPath) && ['flac', 'mp3', 'wav', 'm4a', 'ogg'].includes(file.extension.toLowerCase())) { collectedFiles.set(file.path, file); } }); }); this.fullPlaylist = Array.from(collectedFiles.values()).map((f, index) => ({ id: index, name: f.basename, path: f.path, resourcePath: this.app.vault.getResourcePath(f) })); } this.updateCategorySelector(); this.updateView(); }
     updateCategorySelector() { const currentVal = this.categorySelect.value; this.categorySelect.empty(); this.categorySelect.add(new Option("所有歌曲", "all")); this.categorySelect.add(new Option("喜爱列表", "favorite")); const validFolders = this.settings.musicFolderPaths.filter(p => p && p.trim() !== ''); if (validFolders.length > 1) { validFolders.forEach(path => { this.categorySelect.add(new Option(path.split('/').pop() || path, path)); }); } if (Array.from(this.categorySelect.options).some(option => option.value === currentVal)) { this.categorySelect.value = currentVal; } else { this.categorySelect.value = 'all'; this.currentCategory = 'all'; } }
@@ -114,3 +109,4 @@ class VaultRadioSettingTab extends PluginSettingTab {
 }
 
 module.exports = VaultRadioPlugin;
+
