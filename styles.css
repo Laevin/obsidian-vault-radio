@@ -1,0 +1,48 @@
+/* --- 状态栏样式 --- */
+.minimal-player-statusbar-new { display: flex; align-items: center; gap: 4px; }
+.minimal-player-button { background: var(--background-primary); border: 1px solid var(--background-modifier-border); border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: none !important; transition: background-color 0.1s ease; width: 30px; height: 30px; padding: 0; }
+.minimal-player-button:hover { background: var(--background-modifier-hover); }
+.minimal-player-button .svg-icon { width: 18px; height: 18px; color: var(--text-normal); }
+.playlist-track-button { position: relative; flex-grow: 1; min-width: 100px; max-width: 250px; height: 30px; justify-content: flex-start; padding: 0 10px; overflow: hidden; background: var(--background-primary); border: 1px solid var(--background-modifier-border); border-radius: 5px; cursor: pointer; }
+.playlist-track-button:hover { background: var(--background-primary); }
+.status-bar-progress { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: var(--background-modifier-hover); opacity: 0.8; z-index: 1; pointer-events: none; transition: width 0.1s linear; }
+.playlist-track-button span { position: relative; z-index: 2; white-space: nowrap; font-size: var(--font-ui-small); }
+.playlist-track-button span.is-scrolling { display: inline-block; animation: scroll-text-animation 10s linear infinite; }
+@keyframes scroll-text-animation { 0% { transform: translateX(0); } 40% { transform: translateX(calc(-100% + var(--button-width, 150px) - 20px)); } 60% { transform: translateX(calc(-100% + var(--button-width, 150px) - 20px)); } 90% { transform: translateX(0); } 100% { transform: translateX(0); } }
+
+/* --- 音乐中心 --- */
+.minimal-player-hub-container {
+    position: fixed; z-index: 999; width: 300px;
+    background-color: var(--background-secondary); border: 1px solid var(--background-modifier-border);
+    border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    padding: 12px; display: flex; flex-direction: column; gap: 12px;
+}
+
+/* 功能按钮栏 */
+.hub-function-bar { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; }
+.hub-function-button { background: none; border: none; cursor: pointer; padding: 5px; border-radius: 5px; display: flex; align-items: center; justify-content: center; transition: background-color 0.1s ease; }
+.hub-function-button:hover { background-color: var(--background-modifier-hover); }
+.hub-function-button .svg-icon { width: 20px; height: 20px; color: var(--text-muted); }
+
+/* --- 核心修正：红心按钮的实心样式 --- */
+.hub-function-button.is-favorite .svg-icon {
+    color: var(--text-accent); /* 边框颜色 (通常是红色) */
+    fill: var(--text-accent);  /* 填充颜色 (关键！) */
+}
+
+.hub-function-select { flex-grow: 1; background: var(--background-primary); border: 1px solid var(--background-modifier-border); border-radius: 5px; font-size: 12px; padding: 5px 8px; }
+
+/* 交互式进度条 */
+.hub-controls { display: flex; flex-direction: column; gap: 5px; }
+.hub-progress-container { position: relative; width: 100%; height: 10px; border-radius: 5px; cursor: pointer; display: flex; align-items: center; padding: 3px 0; }
+.hub-progress-container:hover .hub-progress-thumb { opacity: 1; }
+.hub-progress-container::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); height: 4px; width: 100%; background: var(--background-modifier-border); border-radius: 2px; }
+.hub-progress-fill { position: relative; z-index: 1; height: 4px; background-color: var(--text-accent); border-radius: 2px; }
+.hub-progress-thumb { position: absolute; z-index: 2; top: 50%; transform: translateY(-50%); width: 12px; height: 12px; background-color: white; border: 2px solid var(--text-accent); border-radius: 50%; pointer-events: none; opacity: 0; transition: opacity 0.1s ease; }
+.hub-time-display { font-size: 11px; color: var(--text-muted); text-align: center; }
+
+/* 播放列表 */
+.hub-playlist { list-style: none; margin: 0; padding: 0; max-height: 200px; overflow-y: auto; }
+.hub-playlist li { padding: 8px 12px; cursor: pointer; border-radius: 4px; font-size: var(--font-ui-small); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; user-select: none; }
+.hub-playlist li:hover { background-color: var(--background-modifier-hover); }
+.hub-playlist li.is-playing { color: var(--text-accent); font-weight: 600; }
